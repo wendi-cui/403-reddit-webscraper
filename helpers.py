@@ -70,15 +70,6 @@ def get_sentiment(post):
     
     return res
 
-def get_color(sentiment):
-    color = ''
-    if sentiment.startswith('Pos'):
-        color = 'green'
-    elif sentiment.startswith('Neg'):
-        color = 'red'
-    else:
-        color = 'black'
-    return color
 
 
 ########### Scraping ######
@@ -120,10 +111,6 @@ def scrape_reddit():
 
     # apply sentiment analysis
     final_df['sentiment'] = final_df['post'].apply(get_sentiment)
-    #final_df['color'] = final_df['sentiment'].apply(get_color)
-
-    colors = []
-
 
 
     ########### Set up the figure ######
