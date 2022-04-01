@@ -3,6 +3,7 @@ import requests
 from bs4 import BeautifulSoup
 import pandas as pd
 import datetime
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
 
 
@@ -50,6 +51,21 @@ def parse_that_date(row):
     z = '2020 '+ y
     return z[:20]
 
+def get_sentiment(post):
+
+    analyzer = SentimentIntensityAnalyzer()
+    result = analyzer.polarity_scores(post)
+    score = result['compound']
+    res = ''
+    if score >= 0.05:
+        res = f'Positive: {score}'
+    elif score <= -0.05:
+        res =  f'Negative: {score}'
+    else:
+        res = f'Neutral: {score}'
+    
+    return res
+
 ########### Scraping ######
 
 def scrape_reddit():
@@ -87,6 +103,8 @@ def scrape_reddit():
     working_df['time']=working_df['UTC_date'].dt.time
     final_df = working_df[['date', 'time', 'post']].copy()
 
+    # apply sentiment analysis
+    final_df['sentiment'] = final_df['post'].apply(get_sentiment)
 
 
     ########### Set up the figure ######
