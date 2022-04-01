@@ -11,22 +11,26 @@ from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
 def base_fig():
     data=go.Table(columnwidth = [200,200,1000],
-                    header=dict(values=['date', 'time', 'post'], align=['left']),
+                    header=dict(values=['date', 'time', 'post', 'sentiment'], align=['left']),
                     cells=dict(align=['left'],
                                values=[[1,2,3],
                                        [1,2,3],
-                                       ['waiting for data','waiting for data','waiting for data']])
+                                       ['waiting for data','waiting for data','waiting for data'],
+                                       ['Guess what', 'flip a coin', 'flip again']
+                                       ])
                  )
     fig = go.Figure([data])
     return fig
 
 def error_fig():
     data=go.Table(columnwidth = [200,200,1000],
-                    header=dict(values=['date', 'time', 'post'], align=['left']),
+                    header=dict(values=['date', 'time', 'post', 'sentiment'], align=['left']),
                     cells=dict(align=['left'],
-                               values=[['whoa!','whoa!','whoa!'],
+                               values=[['whoa!','whoa!','whoa!', 'whoa!'],
                                        [3,2,1],
-                                       ['Slow down!','Scraping takes a sec','Try back later!']])
+                                       ['Slow down!','Scraping takes a sec','Try back later!'],
+                                       ['Guess what', 'flip a coin', 'flip again']
+                                       ])
                  )
     fig = go.Figure([data])
     return fig
@@ -65,6 +69,17 @@ def get_sentiment(post):
         res = f'Neutral: {score}'
     
     return res
+
+def get_color(sentiment):
+    color = ''
+    if sentiment.startswith('Pos'):
+        color = 'green'
+    elif sentiment.startswith('Neg'):
+        color = 'red'
+    else:
+        color = 'black'
+    return color
+
 
 ########### Scraping ######
 
@@ -105,6 +120,10 @@ def scrape_reddit():
 
     # apply sentiment analysis
     final_df['sentiment'] = final_df['post'].apply(get_sentiment)
+    #final_df['color'] = final_df['sentiment'].apply(get_color)
+
+    colors = []
+
 
 
     ########### Set up the figure ######
@@ -115,7 +134,12 @@ def scrape_reddit():
                                values=[final_df['date'],
                                        final_df['time'],
                                        final_df['post'].values,
-                                       final_df['sentiment'].values])
+                                       final_df['sentiment'].values],
+                                font_color = ['black', 'black', 'black', 
+                                ['green' if x.startswith('Pos') else 'red' if x.startswith('Neg') else 'black'
+                                for x in list(final_df.sentiment)]
+                                ]
+                            )
                  )
     fig = go.Figure([data])
     return fig
